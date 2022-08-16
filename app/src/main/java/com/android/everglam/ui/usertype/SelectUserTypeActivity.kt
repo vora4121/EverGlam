@@ -20,14 +20,7 @@ class SelectUserTypeActivity : BaseActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        if (pref.getBoolean(AppPreferencesHelper.USER_IS_LOGIN, false) == true){
-            if (pref.getString(AppPreferencesHelper.USER_TYPE, "").equals(AppConstant.USER_TYPE_ADMIN)){
-                goTo(DashboardActivity::class.java)
-            }else{
-                goTo(DashboardActivity::class.java)
-            }
 
-        }
 
         initListener()
 
@@ -42,12 +35,10 @@ class SelectUserTypeActivity : BaseActivity(), View.OnClickListener {
         when(v!!){
 
             binding.btnAdmin -> {
-                pref.setString(AppPreferencesHelper.USER_TYPE, AppConstant.USER_TYPE_ADMIN)
                 goTo(LoginActivity::class.java)
             }
 
             binding.btnStaff -> {
-                pref.setString(AppPreferencesHelper.USER_TYPE, AppConstant.USER_TYPE_STAFF)
                 goTo(LoginActivity::class.java)
             }
 

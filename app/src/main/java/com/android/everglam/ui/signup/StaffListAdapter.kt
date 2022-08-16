@@ -27,6 +27,7 @@ class StaffListAdapter(private var listener: (staffModel: StaffModel) -> Unit) :
 
             binding.tvName.text = staffModel.staff_name
             binding.tvEmail.text = staffModel.staff_email
+            binding.tvPassword.text = staffModel.staff_pass
 
             binding.imgDeleteUser.setOnClickListener {
                 listener.invoke(staffModel)
