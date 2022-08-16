@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">EverGlam</string>
+    <string name="scan_code">Scan code</string>
+    <string name="type_code">Type code</string>
+    <string name="search_product">Search product</string>
+    <string name="upload_data">Upload data</string>
+    <string name="search_with_code">Search with code</string>
+    <string name="enter_product_name">Enter product name</string>
+    <string name="enter_code">Enter code</string>
+    <string name="loding">Loading...</string>
+    <string name="loading"><font fgcolor="#000000">Loading...</font></string>
+
+    <string name="enter_email">Enter email</string>
+    <string name="enter_password">Enter password</string>
+    <string name="login">LOGIN</string>
+    <string name="user_type">User type</string>
+    <string name="admin">Admin</string>
+    <string name="staff">Staff</string>
+    <string name="create_staff_account">Create staff account</string>
+    <string name="enter_staff_name">Enter name</string>
+    <string name="enter_staff_email">Enter staff email</string>
+    <string name="forgot_password">Forgot password</string>
+</resources>

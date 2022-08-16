@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "869303459355",
+    "project_id": "everglam-80da2",
+    "storage_bucket": "everglam-80da2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:869303459355:android:6c2529030af73ddaa022be",
+        "android_client_info": {
+          "package_name": "com.android.everglam"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "869303459355-to7nj1lnq4qhp6a989kkralslvgm0heo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.android.everglam",
+            "certificate_hash": "5005b1404caa6f753a2843945b6c71eef29a27ec"
+          }
+        },
+        {
+          "client_id": "869303459355-f3vaeqef7alg9l5tgvvvb5dprpirrmnk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvqYnpurkZUDs54eDtqxSuoJFoXTzc2TE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "869303459355-f3vaeqef7alg9l5tgvvvb5dprpirrmnk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
