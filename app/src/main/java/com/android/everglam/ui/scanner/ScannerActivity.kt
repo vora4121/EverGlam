@@ -1,33 +1,45 @@
 package com.android.everglam.ui.scanner
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.Handler
-import android.view.View
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import android.util.SparseArray
+import android.view.SurfaceHolder
+import androidx.core.app.ActivityCompat
 import com.android.everglam.R
 import com.android.everglam.databinding.ActivityScannerBinding
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.Result
-import me.dm7.barcodescanner.zxing.ZXingScannerView
+import com.android.everglam.ui.base.BaseActivity
+import com.android.everglam.ui.productdetail.ScanedProductDetailsActivity
+import com.android.everglam.utils.goToWithBundle
+import com.google.android.gms.vision.CameraSource
+import com.google.android.gms.vision.Detector
+import com.google.android.gms.vision.barcode.Barcode
+import com.google.android.gms.vision.barcode.BarcodeDetector
+import java.io.IOException
 
-class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
+class ScannerActivity : BaseActivity() {
 
     private val FLASH_STATE = "FLASH_STATE"
     private val AUTO_FOCUS_STATE = "AUTO_FOCUS_STATE"
     private val SELECTED_FORMATS = "SELECTED_FORMATS"
     private val CAMERA_ID = "CAMERA_ID"
-    private var mScannerView: ZXingScannerView? = null
     private var mFlash = false
     private var mAutoFocus = false
     private var mSelectedIndices: ArrayList<Int>? = null
+    private var flag = false
     private var mCameraId = -1
     private val binding: ActivityScannerBinding by lazy {
         ActivityScannerBinding.inflate(
             layoutInflater
         )
     }
+    private var beep: MediaPlayer? = null
+    private var isBeepPlay = false
+    private var barcodeDetector: BarcodeDetector? = null
+    private var cameraSource: CameraSource? = null
+
+    private var barcode: Barcode? = null
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
@@ -45,62 +57,90 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
         setContentView(binding.root)
 
-        mScannerView = ZXingScannerView(this)
-        setupFormats()
-        binding.contentFrame.addView(mScannerView)
+        //media
+        beep = MediaPlayer.create(this, R.raw.beep)
+        initViews()
     }
 
+    private fun initViews() {
+        barcodeDetector = BarcodeDetector.Builder(this)
+            .setBarcodeFormats(Barcode.ALL_FORMATS)
+            .build()
+
+        cameraSource = CameraSource.Builder(this, barcodeDetector)
+            .setRequestedPreviewSize(1920, 1080)
+            .setAutoFocusEnabled(true)
+            .build()
+
+         }
 
     override fun onResume() {
         super.onResume()
-        mScannerView!!.setResultHandler(this)
-        mScannerView!!.startCamera(mCameraId)
-        mScannerView!!.flash = mFlash
-        mScannerView!!.setAutoFocus(mAutoFocus)
+        flag = false
+        initialiseDetectorsAndSources()
     }
 
-    fun setupFormats() {
-        val formats: MutableList<BarcodeFormat> = ArrayList()
-        if (mSelectedIndices == null || mSelectedIndices!!.isEmpty()) {
-            mSelectedIndices = ArrayList()
-            for (i in ZXingScannerView.ALL_FORMATS.indices) {
-                mSelectedIndices!!.add(i)
-            }
-        }
-        for (index in mSelectedIndices!!) {
-            formats.add(ZXingScannerView.ALL_FORMATS[index])
-        }
-        if (mScannerView != null) {
-            mScannerView!!.setFormats(formats)
-        }
-    }
 
-    override fun handleResult(result: Result?) {
-        Toast.makeText(this@ScannerActivity, "Result: ".plus(result!!.text.toString()), Toast.LENGTH_SHORT).show()
-
-        val handler = Handler()
-        handler.postDelayed(
-            { mScannerView!!.resumeCameraPreview(this@ScannerActivity) },
-            2000
-        )
-
-    }
 
     override fun onPause() {
         super.onPause()
-        mScannerView!!.stopCamera()
+        //mScannerView!!.stopCamera()
     }
 
-    fun toggleFlash(v: View?) {
-        mFlash = !mFlash
-        mScannerView!!.flash = mFlash
+    private fun initialiseDetectorsAndSources() {
+        binding.surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
+            override fun surfaceCreated(holder: SurfaceHolder) {
+                createSurface()
+            }
 
-        if (mScannerView!!.flash){
-            binding.imgFlash.setImageDrawable(ContextCompat.getDrawable(this@ScannerActivity, R.drawable.ic_flash_on))
-        }else{
-            binding.imgFlash.setImageDrawable(ContextCompat.getDrawable(this@ScannerActivity, R.drawable.ic_flash_off))
+            override fun surfaceChanged(
+                holder: SurfaceHolder,
+                format: Int,
+                width: Int,
+                height: Int
+            ) {}
+
+            override fun surfaceDestroyed(holder: SurfaceHolder) {
+                cameraSource?.stop()
+            }
+        })
+
+        barcodeDetector?.setProcessor(object : Detector.Processor<Barcode?> {
+            override fun release() {}
+            override fun receiveDetections(detections: Detector.Detections<Barcode?>) {
+               val barcodes = detections.detectedItems
+                if (barcodes.size() != 0) {
+                    if (!isBeepPlay){
+                        beep?.start()
+                        isBeepPlay = true
+                    }
+
+
+                    barcode = barcodes.valueAt(0)
+                    val result = barcode?.rawValue
+                    if (!flag) {
+                        goToWithBundle(ScanedProductDetailsActivity::class.java){
+                            putString("Result", result.toString())
+                        }
+                        beep?.start()
+                    }
+                    flag = true
+
+                }
+            }
+        })
+    }
+
+    fun createSurface(){
+        try {
+            if (ActivityCompat.checkSelfPermission(this@ScannerActivity, Manifest.permission.CAMERA) === PackageManager.PERMISSION_GRANTED) {
+                cameraSource?.start(binding.surfaceView.holder)
+            } else {
+                ActivityCompat.requestPermissions(this@ScannerActivity, arrayOf(Manifest.permission.CAMERA), 201)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
-
-
     }
+
 }

@@ -6,12 +6,14 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import com.android.everglam.databinding.ActivityDashboardBinding
 import com.android.everglam.ui.base.BaseActivity
+import com.android.everglam.ui.productdetail.ScanedProductDetailsActivity
 import com.android.everglam.ui.scanner.ScannerActivity
 import com.android.everglam.ui.searchedproduct.SearchedProductActivity
 import com.android.everglam.ui.signup.CreateStaffAccActivity
@@ -35,6 +37,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
         initViewListeners()
         onPermission()
     }
@@ -82,15 +85,18 @@ class DashboardActivity : BaseActivity(), View.OnClickListener {
             }
 
             binding.btnTypeCode -> {
-
                 binding.clMainView.visibility = View.GONE
                 binding.clCodeSearchView.visibility = View.VISIBLE
-
             }
 
             binding.btnSearch -> {
-                binding.clMainView.visibility = View.VISIBLE
-                binding.clCodeSearchView.visibility = View.GONE
+                if (TextUtils.isEmpty(binding.etCode.text.toString())){
+                    showShortSnack(binding.root, "Please enter code")
+                }else{
+                    goToWithBundle(ScanedProductDetailsActivity::class.java){
+                        putString("Result", binding.etCode.text.toString())
+                    }
+                }
             }
 
             binding.imgClose -> {

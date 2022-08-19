@@ -37,10 +37,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener {
 
             binding.btnLogin -> {
                 if (validate()) {
-                    pref.setBoolean(AppPreferencesHelper.USER_IS_LOGIN, true)
-                    pref.setString(AppPreferencesHelper.USER_TYPE, AppConstant.USER_TYPE_ADMIN)
-                    goTo(DashboardActivity::class.java)
-                  //  validateLogin()
+                    validateLogin()
                 }
             }
         }

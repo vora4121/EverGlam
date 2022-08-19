@@ -14,6 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EverGlam">
         <activity
+            android:name=".ui.productdetail.ScanedProductDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.signup.CreateStaffAccActivity"
             android:exported="false" />
         <activity
