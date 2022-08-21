@@ -11,10 +11,11 @@ data class StaffModel(
 
 data class ScannedData(
     val Category: String = "",
-    val MRP: Double = 0.0,
+    val MRP: String = "",
     val Product_Name: String = "",
-    val Qty_Available: Int = -1,
+    val Qty_Available: String = "",
     val Sub_Category_Brand: String = "",
-    val Retail_Price: Double = 0.0,
-    val Discount: Double = 0.0
+    val Retail_Price: String = "",
+    val Discount: String = "",
+    val BarCode : String = ""
 ) : Serializable

@@ -27,4 +27,6 @@
     <string name="discount">Discount %:</string>
     <string name="search_code">Search Code</string>
     <string name="search">Search</string>
+    <string name="clear_data">Clear Data</string>
+    <string name="create_acc">Create Acc</string>
 </resources>

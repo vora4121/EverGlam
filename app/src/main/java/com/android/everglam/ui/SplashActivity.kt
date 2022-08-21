@@ -48,4 +48,5 @@ class SplashActivity : BaseActivity() {
         super.onStop()
     }
 
+
 }

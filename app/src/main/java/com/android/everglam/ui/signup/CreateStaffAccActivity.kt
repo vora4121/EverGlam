@@ -104,8 +104,26 @@ class CreateStaffAccActivity : BaseActivity(), View.OnClickListener {
 
                 }
             }
+
+            binding.btnClearData -> {
+                showOptionAlert("Alert!", "Are you sure you want to Clear Database?", "Yes") {
+                    clearDataBase()
+                }
+            }
         }
     }
+
+    private fun clearDataBase() {
+        showLoader()
+        database?.removeValue()?.addOnSuccessListener {
+            showShortSnack(binding.root, "Database has been cleared! Now you can upload new data")
+            hideLoader()
+        }?.addOnFailureListener {
+            showShortSnack(binding.root, "Something went wrong")
+            hideLoader()
+        }
+    }
+
 
     private fun validateNewStaff()  {
         showLoader()

@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/EverGlam.iml" filepath="$PROJECT_DIR$/.idea/EverGlam.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/EverGlam.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/EverGlam.app.iml" />
     </modules>
   </component>
 </project>

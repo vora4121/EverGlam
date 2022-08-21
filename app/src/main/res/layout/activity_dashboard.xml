@@ -111,7 +111,6 @@
             android:background="@drawable/edt_bg"
             android:fontFamily="@font/lato_regular"
             android:hint="@string/enter_code"
-            android:inputType="number"
             android:paddingHorizontal="10dp"
             android:paddingVertical="10dp"
             android:textColor="@color/black"

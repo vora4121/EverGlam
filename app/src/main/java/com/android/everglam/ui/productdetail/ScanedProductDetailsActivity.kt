@@ -40,12 +40,36 @@ class ScanedProductDetailsActivity : BaseActivity(), View.OnClickListener {
         binding.btnScan.setOnClickListener(this)
         binding.btnSearch.setOnClickListener(this)
         database = FirebaseDatabase.getInstance().getReference(AppConstant.DATABASE_TABLE)
-        scanDataFromDatabase(strResult)
+
+        binding.rvProduct.layoutManager = LinearLayoutManager(this@ScanedProductDetailsActivity)
+        productDetailsAdapter = ProductDetailsAdapter()
+        binding.rvProduct.adapter = productDetailsAdapter
+
+        if (AppConstant.arrProductData.isEmpty()) {
+            scanDataFromDatabase(strResult)
+        } else {
+            filterProduct(strResult)
+        }
+    }
+
+    private fun filterProduct(strResult : String) {
+        val arrSearchedProduct : ArrayList<ScannedData> = ArrayList()
+        for (i in 0 until AppConstant.arrProductData.size){
+            if (AppConstant.arrProductData[i].BarCode == strResult){
+                arrSearchedProduct.add(AppConstant.arrProductData[i])
+            }
+        }
+
+        if (arrSearchedProduct.isEmpty()){
+            showShortSnack(binding.root, "Search product not available. Please re-scan")
+        }else{
+            productDetailsAdapter!!.addItem(arrSearchedProduct!!)
+        }
     }
 
     private fun scanDataFromDatabase(strScanCode: String) {
         showLoader()
-        val queryEmail: Query = database?.orderByChild("Barcode")!!.equalTo(strScanCode.toDouble())
+        val queryEmail: Query = database?.orderByChild("Barcode")!!.equalTo(strScanCode)
         queryEmail.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 hideLoader()
@@ -54,12 +78,12 @@ class ScanedProductDetailsActivity : BaseActivity(), View.OnClickListener {
                         arrProductList?.add(
                             ScannedData(
                                 datasnap.child("Category").value.toString(),
-                                datasnap.child("MRP").value.toString().toDouble(),
+                                datasnap.child("MRP").value.toString(),
                                 datasnap.child("Product Name").value.toString(),
-                                datasnap.child("Qty_Available").value.toString().toInt(),
+                                datasnap.child("Qty_Available").value.toString(),
                                 datasnap.child("Sub Category_Brand").value.toString(),
-                                datasnap.child("Retail Price").value.toString().toDouble(),
-                                datasnap.child("Discount").value.toString().toDouble()
+                                datasnap.child("Retail Price").value.toString(),
+                                datasnap.child("Discount").value.toString()
                             )
                         )
                     }
@@ -78,9 +102,6 @@ class ScanedProductDetailsActivity : BaseActivity(), View.OnClickListener {
 
     private fun setUpRecyclerView() {
         if (arrProductList?.isEmpty() != true) {
-            binding.rvProduct.layoutManager = LinearLayoutManager(this@ScanedProductDetailsActivity)
-            productDetailsAdapter = ProductDetailsAdapter()
-            binding.rvProduct.adapter = productDetailsAdapter
             productDetailsAdapter!!.addItem(arrProductList!!)
         }
     }

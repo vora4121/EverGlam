@@ -9,8 +9,11 @@ import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import com.android.everglam.data.ScannedData
+import com.android.everglam.data.StaffModel
 import com.android.everglam.databinding.ActivityDashboardBinding
 import com.android.everglam.ui.base.BaseActivity
 import com.android.everglam.ui.productdetail.ScanedProductDetailsActivity
@@ -18,6 +21,7 @@ import com.android.everglam.ui.scanner.ScannerActivity
 import com.android.everglam.ui.searchedproduct.SearchedProductActivity
 import com.android.everglam.ui.signup.CreateStaffAccActivity
 import com.android.everglam.utils.*
+import com.google.firebase.database.*
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -26,18 +30,16 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 
 class DashboardActivity : BaseActivity(), View.OnClickListener {
 
-    private val binding: ActivityDashboardBinding by lazy {
-        ActivityDashboardBinding.inflate(
-            layoutInflater
-        )
-    }
+    private val binding: ActivityDashboardBinding by lazy { ActivityDashboardBinding.inflate(layoutInflater) }
+
     private lateinit var activityResult: ActivityResultLauncher<Intent>
     private var isPermissionGrant: Boolean = false
+    private var database: DatabaseReference? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
+        database = FirebaseDatabase.getInstance().getReference(AppConstant.DATABASE_TABLE)
         initViewListeners()
         onPermission()
     }
@@ -60,13 +62,32 @@ class DashboardActivity : BaseActivity(), View.OnClickListener {
             binding.clMainView.visibility = View.VISIBLE
         }
 
-        activityResult =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == Activity.RESULT_OK) {
+        activityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
                     Log.e("==>>", "initViewListeners: " + result.data!!.data!!)
                 }
-            }
+        }
+
+        if (AppConstant.arrProductData.isEmpty()){
+           // searchProduct()
+            clearDataBase()
+        }
+
+
     }
+
+    private fun clearDataBase() {
+        showLoader()
+        database?.removeValue()?.addOnSuccessListener {
+            showShortSnack(binding.root, "Database has been cleared! Now you can upload new data")
+            hideLoader()
+        }?.addOnFailureListener {
+            showShortSnack(binding.root, "Something went wrong")
+            hideLoader()
+        }
+    }
+
+
 
     override fun onClick(v: View?) {
 
@@ -163,5 +184,39 @@ class DashboardActivity : BaseActivity(), View.OnClickListener {
         super.onBackPressed()
         finishAffinity()
     }
+
+    private fun searchProduct() {
+        showLoader()
+        database?.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                hideLoader()
+                if (snapshot.exists()) {
+                    for (datasnap in snapshot.children) {
+                        AppConstant.arrProductData.add(
+                            ScannedData(
+                                datasnap.child("Category").value.toString(),
+                                datasnap.child("MRP").value.toString(),
+                                datasnap.child("Product Name").value.toString(),
+                                datasnap.child("Qty_Available").value.toString(),
+                                datasnap.child("Sub Category_Brand").value.toString(),
+                                datasnap.child("Retail Price").value.toString(),
+                                datasnap.child("Discount").value.toString(),
+                                datasnap.child("Barcode").value.toString()
+                            )
+                        )
+                        Log.e("==>>", "onDataChange: " )
+                    }
+                }else{
+                    showShortSnack(binding.root, "Search product not available. Please re-scan")
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@DashboardActivity, error.message, Toast.LENGTH_SHORT).show()
+                hideLoader()
+            }
+        })
+    }
+
 
 }
