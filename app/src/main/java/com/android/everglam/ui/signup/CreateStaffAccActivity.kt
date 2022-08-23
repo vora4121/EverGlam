@@ -98,10 +98,10 @@ class CreateStaffAccActivity : BaseActivity(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         when (v!!) {
+
             binding.btnCreateAcc -> {
                 if (validate()) {
                     validateNewStaff()
-
                 }
             }
 

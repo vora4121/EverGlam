@@ -7,6 +7,7 @@ import android.view.View
 import com.android.everglam.databinding.ActivityLoginBinding
 import com.android.everglam.ui.base.BaseActivity
 import com.android.everglam.ui.dashboard.DashboardActivity
+import com.android.everglam.ui.signup.CreateStaffAccActivity
 import com.android.everglam.utils.AppConstant
 import com.android.everglam.utils.AppPreferencesHelper
 import com.android.everglam.utils.goTo
@@ -58,20 +59,21 @@ class LoginActivity : BaseActivity(), View.OnClickListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
                             hideLoader()
                             if (snapshot.exists()) {
-
                                 for (snap in snapshot.children) {
                                     if (snap.child("staff_email").value.toString() == "rinchumathew@yahoo.com" &&
                                         snap.child("staff_pass").value.toString() == "Everglam@1603" &&
                                         snap.child("staff_name").value.toString() == "Rinchu Mathew") {
                                         pref.setBoolean(AppPreferencesHelper.USER_IS_LOGIN, true)
                                         pref.setString(AppPreferencesHelper.USER_TYPE, AppConstant.USER_TYPE_ADMIN)
+                                        goTo(DashboardActivity::class.java)
                                     } else {
                                         pref.setBoolean(AppPreferencesHelper.USER_IS_LOGIN, true)
                                         pref.setString(AppPreferencesHelper.USER_TYPE, AppConstant.USER_TYPE_STAFF)
+                                        goTo(DashboardActivity::class.java)
                                     }
                                     break
                                 }
-                                goTo(DashboardActivity::class.java)
+
                             } else {
                                 hideLoader()
                                 showShortSnack(binding.root, "User not exist")

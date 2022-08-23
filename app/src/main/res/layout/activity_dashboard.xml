@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="-100dp"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView">
 
@@ -151,8 +151,8 @@
         android:id="@+id/cl_admin_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:visibility="gone"
         android:layout_marginTop="-100dp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView">
 
@@ -164,27 +164,58 @@
             android:background="@drawable/button_bg"
             android:fontFamily="@font/lato_bold"
             android:text="@string/create_staff_account"
-            android:textSize="20sp"
             android:textColor="@color/white"
-            app:layout_constraintBottom_toTopOf="@+id/btn_upload_data"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@+id/btn_scanned_by_admin"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
             tools:layout_editor_absoluteX="50dp" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_upload_data"
+            android:id="@+id/btn_scanned_by_admin"
             android:layout_width="match_parent"
             android:layout_height="70dp"
             android:layout_marginHorizontal="50dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginVertical="20dp"
             android:background="@drawable/button_bg"
             android:fontFamily="@font/lato_bold"
-            android:text="@string/upload_data"
-            android:textSize="20sp"
+            android:text="@string/scan_code"
             android:textColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@+id/btn_search_code_by_admin"
             app:layout_constraintTop_toBottomOf="@+id/btn_create_account"
             tools:layout_editor_absoluteX="50dp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_search_code_by_admin"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_marginHorizontal="50dp"
+            android:background="@drawable/button_bg"
+            android:fontFamily="@font/lato_bold"
+            android:text="@string/search_code"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@+id/btn_search_product_by_admin"
+            app:layout_constraintTop_toBottomOf="@+id/btn_scanned_by_admin"
+            tools:layout_editor_absoluteX="50dp" />
+        
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_search_product_by_admin"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_marginHorizontal="50dp"
+            android:background="@drawable/button_bg"
+            android:fontFamily="@font/lato_bold"
+            android:text="@string/search_product"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btn_search_code_by_admin" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

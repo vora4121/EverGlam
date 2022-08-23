@@ -13,7 +13,6 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import com.android.everglam.data.ScannedData
-import com.android.everglam.data.StaffModel
 import com.android.everglam.databinding.ActivityDashboardBinding
 import com.android.everglam.ui.base.BaseActivity
 import com.android.everglam.ui.productdetail.ScanedProductDetailsActivity
@@ -22,6 +21,7 @@ import com.android.everglam.ui.searchedproduct.SearchedProductActivity
 import com.android.everglam.ui.signup.CreateStaffAccActivity
 import com.android.everglam.utils.*
 import com.google.firebase.database.*
+import com.google.gson.Gson
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -30,7 +30,11 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 
 class DashboardActivity : BaseActivity(), View.OnClickListener {
 
-    private val binding: ActivityDashboardBinding by lazy { ActivityDashboardBinding.inflate(layoutInflater) }
+    private val binding: ActivityDashboardBinding by lazy {
+        ActivityDashboardBinding.inflate(
+            layoutInflater
+        )
+    }
 
     private lateinit var activityResult: ActivityResultLauncher<Intent>
     private var isPermissionGrant: Boolean = false
@@ -45,14 +49,15 @@ class DashboardActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun initViewListeners() {
-
         binding.btnScanCode.setOnClickListener(this)
         binding.btnSearchProduct.setOnClickListener(this)
         binding.btnTypeCode.setOnClickListener(this)
-        binding.btnUploadData.setOnClickListener(this)
+        binding.btnScannedByAdmin.setOnClickListener(this)
         binding.btnSearch.setOnClickListener(this)
         binding.imgClose.setOnClickListener(this)
         binding.btnCreateAccount.setOnClickListener(this)
+        binding.btnSearchCodeByAdmin.setOnClickListener(this)
+        binding.btnSearchProductByAdmin.setOnClickListener(this)
 
         if (pref.getString(AppPreferencesHelper.USER_TYPE, "") == AppConstant.USER_TYPE_ADMIN) {
             binding.clAdminView.visibility = View.VISIBLE
@@ -62,15 +67,16 @@ class DashboardActivity : BaseActivity(), View.OnClickListener {
             binding.clMainView.visibility = View.VISIBLE
         }
 
-        activityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
+        activityResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
                     Log.e("==>>", "initViewListeners: " + result.data!!.data!!)
                 }
-        }
+            }
 
-        if (AppConstant.arrProductData.isEmpty()){
-           // searchProduct()
-            clearDataBase()
+        if (AppConstant.arrProductData.isEmpty()) {
+            searchProduct()
+//          clearDataBase()
         }
 
 
@@ -86,8 +92,6 @@ class DashboardActivity : BaseActivity(), View.OnClickListener {
             hideLoader()
         }
     }
-
-
 
     override fun onClick(v: View?) {
 
@@ -105,52 +109,56 @@ class DashboardActivity : BaseActivity(), View.OnClickListener {
                 goTo(SearchedProductActivity::class.java)
             }
 
+            binding.btnSearchProductByAdmin -> {
+                goTo(SearchedProductActivity::class.java)
+            }
+
             binding.btnTypeCode -> {
                 binding.clMainView.visibility = View.GONE
                 binding.clCodeSearchView.visibility = View.VISIBLE
             }
 
+            binding.btnSearchCodeByAdmin -> {
+                binding.clAdminView.visibility = View.GONE
+                binding.clCodeSearchView.visibility = View.VISIBLE
+            }
+
             binding.btnSearch -> {
-                if (TextUtils.isEmpty(binding.etCode.text.toString())){
+                if (TextUtils.isEmpty(binding.etCode.text.toString())) {
                     showShortSnack(binding.root, "Please enter code")
-                }else{
-                    goToWithBundle(ScanedProductDetailsActivity::class.java){
+                } else {
+                    goToWithBundle(ScanedProductDetailsActivity::class.java) {
                         putString("Result", binding.etCode.text.toString())
                     }
                 }
             }
 
             binding.imgClose -> {
-                binding.clMainView.visibility = View.VISIBLE
-                binding.clCodeSearchView.visibility = View.GONE
+                if (pref.getString(AppPreferencesHelper.USER_TYPE, "") == AppConstant.USER_TYPE_ADMIN) {
+                    binding.clAdminView.visibility = View.VISIBLE
+                    binding.clCodeSearchView.visibility = View.GONE
+                }else{
+                    binding.clMainView.visibility = View.VISIBLE
+                    binding.clCodeSearchView.visibility = View.GONE
+                }
             }
 
             binding.btnCreateAccount -> {
                 goTo(CreateStaffAccActivity::class.java)
             }
 
-            binding.btnUploadData -> {
+            binding.btnScannedByAdmin -> {
                 if (isPermissionGrant) {
-                    activityResult.launch(
-                        Intent.createChooser(
-                            Intent().setAction(Intent.ACTION_GET_CONTENT).setType("file/*"),
-                            "Select data"
-                        )
-                    )
+                    goTo(ScannerActivity::class.java)
                 } else {
                     onPermission()
                 }
-
-                Log.e("TAG", "onClick: ")
-
             }
         }
     }
 
     private fun onPermission() {
         Dexter.withContext(this@DashboardActivity).withPermissions(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA
         ).withListener(object : MultiplePermissionsListener {
             override fun onPermissionsChecked(multiplePermissionsReport: MultiplePermissionsReport) {
@@ -160,7 +168,7 @@ class DashboardActivity : BaseActivity(), View.OnClickListener {
                 if (multiplePermissionsReport.isAnyPermissionPermanentlyDenied) {
                     showOptionAlert(
                         "Permission Needed",
-                        "Common Core Prep needs storage permission to access your storage.",
+                        "EverGlam needs Camera permission for scanning Code.",
                         "OKAY"
                     ) {
                         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
@@ -204,9 +212,8 @@ class DashboardActivity : BaseActivity(), View.OnClickListener {
                                 datasnap.child("Barcode").value.toString()
                             )
                         )
-                        Log.e("==>>", "onDataChange: " )
                     }
-                }else{
+                } else {
                     showShortSnack(binding.root, "Search product not available. Please re-scan")
                 }
             }

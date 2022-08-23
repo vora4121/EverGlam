@@ -9,6 +9,7 @@ import com.android.everglam.R
 import com.android.everglam.ui.base.BaseActivity
 import com.android.everglam.ui.dashboard.DashboardActivity
 import com.android.everglam.ui.login.LoginActivity
+import com.android.everglam.ui.signup.CreateStaffAccActivity
 import com.android.everglam.ui.usertype.SelectUserTypeActivity
 import com.android.everglam.utils.AppConstant
 import com.android.everglam.utils.AppPreferencesHelper
